@@ -2,9 +2,7 @@ package per.kotlin.tetris.view
 
 import per.kotlin.tetris.controller.GameController
 import per.kotlin.tetris.controller.GameControllerImpl
-import per.kotlin.tetris.model.BoardModel
 import per.kotlin.tetris.model.BoardModelImpl
-import per.kotlin.tetris.model.MainFrameModel
 import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Font
@@ -16,25 +14,23 @@ import javax.swing.JPanel
 import kotlin.system.exitProcess
 
 
-class TetrisFrame : JFrame("Tetris"), MainFrameModel {
+class TetrisFrame : JFrame("Tetris") {
     companion object {
-        const val HEIGHT = 20
-        const val WIDTH = 10
+        private const val HEIGHT = 20
+        private const val WIDTH = 10
     }
 
     private val boardComponent = TetrisBoardComponent(WIDTH, HEIGHT)
     private val nextTetrominoComponent = NextTetrominoComponent()
     private val startButton = JButton("Start")
 
-    private val boardModel: BoardModel
     private val gameController: GameController
 
     init {
-        boardModel = BoardModelImpl(WIDTH, HEIGHT).apply { addListener(boardComponent) }
+        val boardModel = BoardModelImpl(WIDTH, HEIGHT).apply { addListener(boardComponent) }
         gameController = GameControllerImpl(boardModel)
 
         createUI()
-
         addListeners()
     }
 
@@ -54,9 +50,11 @@ class TetrisFrame : JFrame("Tetris"), MainFrameModel {
     }
 
     private fun addListeners() {
-        addOnWindowClosingListener {
-            exitProcess(0)
-        }
+        addWindowListener(object : WindowAdapter() {
+            override fun windowClosing(e: WindowEvent?) {
+                exitProcess(0)
+            }
+        })
 
         startButton.addMouseListener(object : MouseAdapter() {
             override fun mouseClicked(e: MouseEvent?) {
@@ -77,13 +75,5 @@ class TetrisFrame : JFrame("Tetris"), MainFrameModel {
         }
 
         gameController.addNextTetrominoListener(nextTetrominoComponent)
-    }
-
-    private fun addOnWindowClosingListener(listener: () -> Unit) {
-        addWindowListener(object : WindowAdapter() {
-            override fun windowClosing(e: WindowEvent?) {
-                listener()
-            }
-        })
     }
 }

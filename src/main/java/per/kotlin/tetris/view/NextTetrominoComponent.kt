@@ -7,18 +7,21 @@ import java.awt.Dimension
 import java.awt.Graphics
 import javax.swing.JComponent
 
-private const val brickSize = 30
-private const val gridSize = 1
-private const val defaultDim = 6
-private val bgColor = Color.BLACK
-private val borderColor = Color.GRAY
-private val dimension: Dimension = Dimension(
-        defaultDim * brickSize + (defaultDim + 1) * gridSize,
-        defaultDim * brickSize + (defaultDim + 1) * gridSize
-)
-
 class NextTetrominoComponent : JComponent(), NextTetrominoListener {
-    private var tetromino: Tetromino? = null
+    companion object {
+        private const val BRICK_SIZE = 30
+        private const val GRID_SIZE = 1
+        private const val DEFAULT_DIM = 6
+
+        private val bgColor = Color.BLACK
+        private val borderColor = Color.GRAY
+        private val dimension = Dimension(
+                DEFAULT_DIM * BRICK_SIZE + (DEFAULT_DIM + 1) * GRID_SIZE,
+                DEFAULT_DIM * BRICK_SIZE + (DEFAULT_DIM + 1) * GRID_SIZE
+        )
+    }
+
+    private lateinit var tetromino: Tetromino
 
     override fun fire(newTetromino: Tetromino) {
         tetromino = newTetromino
@@ -26,7 +29,7 @@ class NextTetrominoComponent : JComponent(), NextTetrominoListener {
     }
 
     override fun paintComponent(g: Graphics?) {
-        if (g == null)
+        if (g === null)
             return
 
         g.color = bgColor
@@ -35,23 +38,23 @@ class NextTetrominoComponent : JComponent(), NextTetrominoListener {
         g.color = borderColor
         g.drawRect(5, 5, dimension.width - 10, dimension.height - 10)
 
-        if (tetromino == null)
+        if (::tetromino.isInitialized.not())
             return
 
-        g.color = tetromino!!.getColor()
-        for ((x, y) in tetromino!!.getCoverage()) {
+        g.color = tetromino.getColor()
+        for ((x, y) in tetromino.getCoverage()) {
             g.fillRect(
-                    (y + 1) * gridSize + y * brickSize - 2 * brickSize,
-                    (x + 1) * gridSize + x * brickSize + 2 * brickSize,
-                    brickSize,
-                    brickSize
+                    (y + 1) * GRID_SIZE + y * BRICK_SIZE - 2 * BRICK_SIZE,
+                    (x + 1) * GRID_SIZE + x * BRICK_SIZE + 2 * BRICK_SIZE,
+                    BRICK_SIZE,
+                    BRICK_SIZE
             )
         }
     }
 
-    override fun getPreferredSize(): Dimension = dimension
+    override fun getPreferredSize() = dimension
 
-    override fun getMaximumSize(): Dimension = dimension
+    override fun getMaximumSize() = dimension
 
-    override fun getMinimumSize(): Dimension = dimension
+    override fun getMinimumSize() = dimension
 }

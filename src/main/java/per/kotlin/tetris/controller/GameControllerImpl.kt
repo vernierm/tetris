@@ -2,22 +2,26 @@ package per.kotlin.tetris.controller
 
 import per.kotlin.tetris.model.BoardModel
 import per.kotlin.tetris.model.NextTetrominoListener
-import per.kotlin.tetris.model.tetromino.*
+import per.kotlin.tetris.model.tetromino.NoOpTetromino
+import per.kotlin.tetris.model.tetromino.Orientation
+import per.kotlin.tetris.model.tetromino.Tetromino
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.timerTask
 
-private const val PERIOD = 100L
-private val STARTING_POSITION = Pair(0, 4)
 
 class GameControllerImpl(private val boardModel: BoardModel) : GameController {
+    companion object {
+        private const val PERIOD = 1000L
+    }
+
     private val listeners = mutableListOf<NextTetrominoListener>()
     private var activeTetromino: Tetromino = NoOpTetromino()
     private var nextTetromino: Tetromino = NoOpTetromino()
 
     private val timer = Timer(true)
     private var inGame = AtomicBoolean(false)
-    private var timerTask: TimerTask? = null
+    private lateinit var timerTask: TimerTask
 
     override fun start() {
         if (inGame.get())
@@ -110,19 +114,9 @@ class GameControllerImpl(private val boardModel: BoardModel) : GameController {
         return boardModel.plant(activeTetromino, true)
     }
 
-    private fun generateRandomTetromino(): Tetromino = listOf<() -> Tetromino>(
-            { ITetromino(STARTING_POSITION) },
-            { JTetromino(STARTING_POSITION) },
-            { LTetromino(STARTING_POSITION) },
-            { OTetromino(STARTING_POSITION) },
-            { STetromino(STARTING_POSITION) },
-            { TTetromino(STARTING_POSITION) },
-            { ZTetromino(STARTING_POSITION) }
-    ).random()()
-
     private fun gameOver() {
         inGame.set(false)
-        timerTask?.cancel()
+        timerTask.cancel()
 
         boardModel.clearBoard()
         activeTetromino = NoOpTetromino()
